@@ -26,8 +26,8 @@ test-cov:  ## Run tests with coverage
 lint:  ## Run linters
 	$(BLACK) src tests
 	$(ISORT) --profile black src tests
-	## $(FLAKE8) src tests
-	## $(MYPY) src
+	$(FLAKE8) src tests
+	$(MYPY) src
 
 format:  ## Format code
 	$(BLACK) src tests

@@ -30,11 +30,11 @@ jobs:
       - name: Run isort
         run: isort --check-only --profile black src tests
       
-      - name: Run flake8
-        run: flake8 src tests
+      #- name: Run flake8
+      #  run: flake8 src tests
       
-      - name: Run mypy
-        run: mypy src
+      #- name: Run mypy
+      #  run: mypy src
 
   test:
     runs-on: ubuntu-latest
