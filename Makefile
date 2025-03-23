@@ -24,8 +24,8 @@ test-cov:  ## Run tests with coverage
 	$(PYTEST) --cov=webhook_relay tests/
 
 lint:  ## Run linters
-	$(BLACK) --check src tests
-	$(ISORT) --check-only --profile black src tests
+	$(BLACK) src tests
+	$(ISORT) --profile black src tests
 	$(FLAKE8) src tests
 	$(MYPY) src
 

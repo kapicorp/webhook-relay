@@ -10,18 +10,18 @@ from webhook_relay.common.config import (
     QueueType,
     WebhookSourceConfig,
 )
+from webhook_relay.common.metrics import (
+    MetricsRegistry,
+    measure_time,
+    metrics,
+    start_metrics_server,
+)
 from webhook_relay.common.models import QueueMessage, WebhookMetadata, WebhookPayload
 from webhook_relay.common.queue import (
     AWSSQSClient,
     GCPPubSubClient,
     QueueClient,
     create_queue_client,
-)
-from webhook_relay.common.metrics import (
-    MetricsRegistry,
-    metrics,
-    measure_time,
-    start_metrics_server,
 )
 
 __all__ = [

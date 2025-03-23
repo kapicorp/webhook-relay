@@ -6,10 +6,9 @@ import click
 import yaml
 from loguru import logger
 
+from webhook_relay.collector.server import run_server
 from webhook_relay.common.config import CollectorConfig
 from webhook_relay.common.queue import QueueClient, create_queue_client
-from webhook_relay.collector.server import run_server
-
 
 _app_config: Optional[CollectorConfig] = None
 _queue_client: Optional[QueueClient] = None
@@ -34,17 +33,17 @@ def load_config_from_file(config_path: str) -> CollectorConfig:
     file_path = Path(config_path)
     if not file_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
-    
+
     with open(file_path, "r") as f:
         config_data = yaml.safe_load(f)
-    
+
     return CollectorConfig.model_validate(config_data)
 
 
 def setup_app(config: CollectorConfig):
     """Initialize the application with the given config."""
     global _app_config, _queue_client
-    
+
     # Configure logging
     logger.remove()
     logger.add(
@@ -52,19 +51,19 @@ def setup_app(config: CollectorConfig):
         level=config.log_level,
         format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
     )
-    
+
     # Validate queue configuration
     config.validate_queue_config()
-    
+
     # Create queue client
     _queue_client = create_queue_client(
         queue_type=config.queue_type,
         gcp_config=config.gcp_config,
         aws_config=config.aws_config,
     )
-    
+
     _app_config = config
-    
+
     logger.info("Webhook Relay Collector initialized")
 
 

@@ -13,7 +13,6 @@ from webhook_relay.common.metrics import metrics, start_metrics_server
 from webhook_relay.common.queue import QueueClient, create_queue_client
 from webhook_relay.forwarder.client import WebhookForwarder
 
-
 _app_config: Optional[ForwarderConfig] = None
 _queue_client: Optional[QueueClient] = None
 _forwarder: Optional[WebhookForwarder] = None
@@ -39,17 +38,17 @@ def load_config_from_file(config_path: str) -> ForwarderConfig:
     file_path = Path(config_path)
     if not file_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
-    
+
     with open(file_path, "r") as f:
         config_data = yaml.safe_load(f)
-    
+
     return ForwarderConfig.model_validate(config_data)
 
 
 def setup_app(config: ForwarderConfig):
     """Initialize the application with the given config."""
     global _app_config, _queue_client, _forwarder, _shutdown_event
-    
+
     # Configure logging
     logger.remove()
     logger.add(
@@ -57,20 +56,20 @@ def setup_app(config: ForwarderConfig):
         level=config.log_level,
         format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
     )
-    
+
     # Validate queue configuration
     config.validate_queue_config()
-    
+
     # Create queue client
     _queue_client = create_queue_client(
         queue_type=config.queue_type,
         gcp_config=config.gcp_config,
         aws_config=config.aws_config,
     )
-    
+
     # Create shutdown event
     _shutdown_event = asyncio.Event()
-    
+
     # Create forwarder
     _forwarder = WebhookForwarder(
         queue_client=_queue_client,
@@ -80,9 +79,9 @@ def setup_app(config: ForwarderConfig):
         retry_delay=config.retry_delay,
         timeout=config.timeout,
     )
-    
+
     _app_config = config
-    
+
     logger.info("Webhook Relay Forwarder initialized")
     logger.info(f"Target URL: {config.target_url}")
 
@@ -90,17 +89,19 @@ def setup_app(config: ForwarderConfig):
 async def run_forwarder():
     """Run the forwarder service."""
     global _app_config, _forwarder, _shutdown_event
-    
+
     # Start metrics server if enabled
     if _app_config.metrics.enabled:
         start_metrics_server(_app_config.metrics.port, _app_config.metrics.host)
-        logger.info(f"Metrics server started on {_app_config.metrics.host}:{_app_config.metrics.port}")
-    
+        logger.info(
+            f"Metrics server started on {_app_config.metrics.host}:{_app_config.metrics.port}"
+        )
+
     # Set up service state metric
     metrics.up.labels(component="forwarder").set(1)
-    
+
     logger.info("Webhook Relay Forwarder started")
-    
+
     try:
         await _forwarder.run(_shutdown_event)
     except Exception as e:
@@ -136,11 +137,11 @@ def serve(config: str):
     try:
         config_obj = load_config_from_file(config)
         setup_app(config_obj)
-        
+
         # Set up signal handlers
         signal.signal(signal.SIGINT, handle_signal)
         signal.signal(signal.SIGTERM, handle_signal)
-        
+
         # Run the forwarder
         asyncio.run(run_forwarder())
     except Exception as e:

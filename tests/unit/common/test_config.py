@@ -1,4 +1,5 @@
 import os
+
 import pytest
 from pydantic import ValidationError
 
@@ -15,36 +16,42 @@ from webhook_relay.common.config import (
 
 
 class TestBaseConfig:
-    
+
     def test_validate_queue_config_gcp(self, gcp_config):
         """Test that validate_queue_config passes with valid GCP config."""
         config = BaseConfig(queue_type=QueueType.GCP_PUBSUB, gcp_config=gcp_config)
         config.validate_queue_config()  # Should not raise an exception
-    
+
     def test_validate_queue_config_aws(self, aws_config):
         """Test that validate_queue_config passes with valid AWS config."""
         config = BaseConfig(queue_type=QueueType.AWS_SQS, aws_config=aws_config)
         config.validate_queue_config()  # Should not raise an exception
-    
+
     def test_validate_queue_config_missing_gcp(self):
         """Test that validate_queue_config raises an exception when GCP config is missing."""
         config = BaseConfig(queue_type=QueueType.GCP_PUBSUB)
-        with pytest.raises(ValueError, match="GCP PubSub selected but no GCP configuration provided"):
+        with pytest.raises(
+            ValueError, match="GCP PubSub selected but no GCP configuration provided"
+        ):
             config.validate_queue_config()
-    
+
     def test_validate_queue_config_missing_aws(self):
         """Test that validate_queue_config raises an exception when AWS config is missing."""
         config = BaseConfig(queue_type=QueueType.AWS_SQS)
-        with pytest.raises(ValueError, match="AWS SQS selected but no AWS configuration provided"):
+        with pytest.raises(
+            ValueError, match="AWS SQS selected but no AWS configuration provided"
+        ):
             config.validate_queue_config()
-    
+
     def test_env_variables(self, monkeypatch):
         """Test that environment variables are correctly loaded."""
         monkeypatch.setenv("WEBHOOK_RELAY_LOG_LEVEL", "DEBUG")
         monkeypatch.setenv("WEBHOOK_RELAY_QUEUE_TYPE", "aws_sqs")
         monkeypatch.setenv("WEBHOOK_RELAY_AWS_CONFIG__REGION_NAME", "us-west-2")
-        monkeypatch.setenv("WEBHOOK_RELAY_AWS_CONFIG__QUEUE_URL", "https://sqs.example.com/queue")
-        
+        monkeypatch.setenv(
+            "WEBHOOK_RELAY_AWS_CONFIG__QUEUE_URL", "https://sqs.example.com/queue"
+        )
+
         config = BaseConfig()
         assert config.log_level == "DEBUG"
         assert config.queue_type == QueueType.AWS_SQS
@@ -54,7 +61,7 @@ class TestBaseConfig:
 
 
 class TestGCPPubSubConfig:
-    
+
     def test_valid_config(self):
         """Test that a valid GCP PubSub config passes validation."""
         config = GCPPubSubConfig(
@@ -64,7 +71,7 @@ class TestGCPPubSubConfig:
         assert config.project_id == "test-project"
         assert config.topic_id == "test-topic"
         assert config.subscription_id is None
-    
+
     def test_with_subscription(self):
         """Test that a GCP PubSub config with subscription ID passes validation."""
         config = GCPPubSubConfig(
@@ -76,7 +83,7 @@ class TestGCPPubSubConfig:
 
 
 class TestAWSSQSConfig:
-    
+
     def test_valid_config(self):
         """Test that a valid AWS SQS config passes validation."""
         config = AWSSQSConfig(
@@ -84,11 +91,14 @@ class TestAWSSQSConfig:
             queue_url="https://sqs.us-west-2.amazonaws.com/123456789012/test-queue",
         )
         assert config.region_name == "us-west-2"
-        assert config.queue_url == "https://sqs.us-west-2.amazonaws.com/123456789012/test-queue"
+        assert (
+            config.queue_url
+            == "https://sqs.us-west-2.amazonaws.com/123456789012/test-queue"
+        )
         assert config.access_key_id is None
         assert config.secret_access_key is None
         assert config.role_arn is None
-    
+
     def test_with_credentials(self):
         """Test that an AWS SQS config with credentials passes validation."""
         config = AWSSQSConfig(
@@ -99,7 +109,7 @@ class TestAWSSQSConfig:
         )
         assert config.access_key_id == "test-access-key"
         assert config.secret_access_key == "test-secret-key"
-    
+
     def test_with_role_arn(self):
         """Test that an AWS SQS config with role ARN passes validation."""
         config = AWSSQSConfig(
@@ -111,7 +121,7 @@ class TestAWSSQSConfig:
 
 
 class TestMetricsConfig:
-    
+
     def test_default_values(self):
         """Test that default values are set correctly."""
         config = MetricsConfig()
@@ -119,7 +129,7 @@ class TestMetricsConfig:
         assert config.host == "127.0.0.1"  # Check the new default host value
         assert config.port == 9090
         assert config.path == "/metrics"
-    
+
     def test_custom_values(self):
         """Test that custom values are set correctly."""
         config = MetricsConfig(
@@ -135,14 +145,14 @@ class TestMetricsConfig:
 
 
 class TestWebhookSourceConfig:
-    
+
     def test_minimal_config(self):
         """Test that a minimal webhook source config passes validation."""
         config = WebhookSourceConfig(name="test-source")
         assert config.name == "test-source"
         assert config.secret is None
         assert config.signature_header is None
-    
+
     def test_with_signature_verification(self):
         """Test that a webhook source config with signature verification passes validation."""
         config = WebhookSourceConfig(
@@ -155,7 +165,7 @@ class TestWebhookSourceConfig:
 
 
 class TestCollectorConfig:
-    
+
     def test_default_values(self):
         """Test that default values are set correctly."""
         config = CollectorConfig(
@@ -169,20 +179,23 @@ class TestCollectorConfig:
         assert config.port == 8000
         assert config.log_level == "INFO"
         assert config.webhook_sources == []
-    
+
     def test_with_webhook_sources(self, collector_config):
         """Test that webhook sources are parsed correctly."""
         assert len(collector_config.webhook_sources) == 3
         assert collector_config.webhook_sources[0].name == "github"
         assert collector_config.webhook_sources[0].secret == "test-secret"
-        assert collector_config.webhook_sources[0].signature_header == "X-Hub-Signature-256"
+        assert (
+            collector_config.webhook_sources[0].signature_header
+            == "X-Hub-Signature-256"
+        )
         assert collector_config.webhook_sources[2].name == "custom"
         assert collector_config.webhook_sources[2].secret is None
         assert collector_config.webhook_sources[2].signature_header is None
 
 
 class TestForwarderConfig:
-    
+
     def test_required_values(self):
         """Test that required values are validated."""
         with pytest.raises(ValidationError):
@@ -195,11 +208,14 @@ class TestForwarderConfig:
                     subscription_id="test-subscription",
                 ),
             )
-    
+
     def test_default_values(self, forwarder_config):
         """Test that default values are set correctly."""
         assert forwarder_config.log_level == "INFO"
         assert forwarder_config.retry_attempts == 3
         assert forwarder_config.retry_delay == 1
         assert forwarder_config.timeout == 5
-        assert forwarder_config.headers == {"X-Webhook-Relay": "true", "Authorization": "Bearer test-token"}
+        assert forwarder_config.headers == {
+            "X-Webhook-Relay": "true",
+            "Authorization": "Bearer test-token",
+        }
