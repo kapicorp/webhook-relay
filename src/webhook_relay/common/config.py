@@ -25,6 +25,7 @@ class AWSSQSConfig(BaseModel):
 
 class MetricsConfig(BaseModel):
     enabled: bool = True
+    host: str = "127.0.0.1"
     port: int = 9090
     path: str = "/metrics"
 

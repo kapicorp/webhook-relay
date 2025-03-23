@@ -1,0 +1,7 @@
+{
+  "event_type": "custom_event",
+  "data": {
+    "id": 12345,
+    "name": "Test Event"
+  }
+}

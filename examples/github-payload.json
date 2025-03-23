@@ -1,0 +1,17 @@
+{
+  "ref": "refs/heads/main",
+  "repository": {
+    "name": "test-repo",
+    "full_name": "octocat/test-repo"
+  },
+  "commits": [
+    {
+      "id": "abc123def456",
+      "message": "Test commit",
+      "author": {
+        "name": "Octocat",
+        "email": "octocat@github.com"
+      }
+    }
+  ]
+}

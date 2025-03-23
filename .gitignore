@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.coverage
+.coverage.*
+.pytest_cache/
+htmlcov/
+*.egg-info/
+dist/
+build/
+site/
+.pants.d/
+.TF_DATA_DIR/
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints
+
+# Plotting artifacts
+*.pdf
+*.png
+
+# Pormake artifacts
+*.pickle
+
+# Virtual Environments
+.venv/
+venv/
+.env
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+!example.tfvars
+.terraform.lock.hcl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key
+*.env
+credentials.json
+
+# Caches
+.ruff_cache/
+
+# Log files
+*.log

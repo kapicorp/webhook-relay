@@ -40,8 +40,8 @@ def create_app(config: CollectorConfig) -> FastAPI:
         
         # Start metrics server if enabled
         if config.metrics.enabled:
-            start_metrics_server(config.metrics.port)
-            logger.info(f"Metrics server started on port {config.metrics.port}")
+            start_metrics_server(config.metrics.port, config.metrics.host)
+            logger.info(f"Metrics server started on {config.metrics.host}:{config.metrics.port}")
         
         # Set up service state metric
         metrics.up.labels(component="collector").set(1)

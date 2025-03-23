@@ -93,8 +93,8 @@ async def run_forwarder():
     
     # Start metrics server if enabled
     if _app_config.metrics.enabled:
-        start_metrics_server(_app_config.metrics.port)
-        logger.info(f"Metrics server started on port {_app_config.metrics.port}")
+        start_metrics_server(_app_config.metrics.port, _app_config.metrics.host)
+        logger.info(f"Metrics server started on {_app_config.metrics.host}:{_app_config.metrics.port}")
     
     # Set up service state metric
     metrics.up.labels(component="forwarder").set(1)

@@ -1,0 +1,36 @@
+log_level: "INFO"
+queue_type: "gcp_pubsub"  # or "aws_sqs"
+
+# The target URL to forward webhooks to
+target_url: "http://your-internal-service:8080/webhook"
+
+# Optional headers to include in forwarded requests
+headers:
+  X-Webhook-Relay: "true"
+  Authorization: "Bearer your-internal-token"
+
+# Retry configuration
+retry_attempts: 3
+retry_delay: 5  # seconds
+timeout: 10  # seconds
+
+# GCP PubSub configuration (if queue_type is "gcp_pubsub")
+gcp_config:
+  # project_id: "your-gcp-project-id" 
+  # or WEBHOOK_RELAY_GCP_CONFIG__PROJECT_ID=your-gcp-project-id
+  topic_id: "webhook-relay-topic"
+  subscription_id: "webhook-relay-topic-sub"  # Required for forwarder to consume messages
+
+# AWS SQS configuration (if queue_type is "aws_sqs")
+# aws_config:
+#   region_name: "us-west-2"
+#   queue_url: "https://sqs.us-west-2.amazonaws.com/123456789012/webhook-relay-queue"
+#   access_key_id: "YOUR_ACCESS_KEY"  # Optional, can use environment variables or instance roles
+#   secret_access_key: "YOUR_SECRET_KEY"  # Optional, can use environment variables or instance roles
+#   role_arn: "arn:aws:iam::123456789012:role/webhook-relay-role"  # Optional, for assuming an IAM role
+
+metrics:
+  enabled: true
+  host: "127.0.0.1"
+  port: 9091  # Different from collector to avoid port conflicts
+  path: "/metrics"

@@ -54,7 +54,9 @@ class GCPPubSubClient(QueueClient):
     async def send_message(self, payload: WebhookPayload) -> str:
         message_id = str(uuid.uuid4())
         queue_message = QueueMessage(id=message_id, payload=payload)
-        data = json.dumps(queue_message.model_dump()).encode("utf-8")
+        
+        # Use Pydantic's model_dump_json instead of manual JSON serialization
+        data = queue_message.model_dump_json().encode("utf-8")
         
         try:
             future = self.publisher.publish(self.topic_path, data)
@@ -79,6 +81,8 @@ class GCPPubSubClient(QueueClient):
             
             received_message = response.received_messages[0]
             message_data = json.loads(received_message.message.data.decode("utf-8"))
+            
+            # Use model_validate instead of model_validate to properly handle datetime fields
             queue_message = QueueMessage.model_validate(message_data)
             queue_message.attempts += 1
             
@@ -161,7 +165,9 @@ class AWSSQSClient(QueueClient):
     async def send_message(self, payload: WebhookPayload) -> str:
         message_id = str(uuid.uuid4())
         queue_message = QueueMessage(id=message_id, payload=payload)
-        message_body = json.dumps(queue_message.model_dump())
+        
+        # Use Pydantic's model_dump_json instead of manual JSON serialization
+        message_body = queue_message.model_dump_json()
         
         try:
             response = self.sqs.send_message(

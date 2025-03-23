@@ -8,11 +8,23 @@ class WebhookMetadata(BaseModel):
     received_at: datetime = Field(default_factory=datetime.utcnow)
     signature: Optional[str] = None
     headers: Dict[str, str] = Field(default_factory=dict)
+    
+    model_config = {
+        "json_encoders": {
+            datetime: lambda dt: dt.isoformat()
+        }
+    }
 
 
 class WebhookPayload(BaseModel):
     metadata: WebhookMetadata
     content: Dict[str, Any]
+    
+    model_config = {
+        "json_encoders": {
+            datetime: lambda dt: dt.isoformat()
+        }
+    }
 
 
 class QueueMessage(BaseModel):
@@ -20,3 +32,9 @@ class QueueMessage(BaseModel):
     payload: WebhookPayload
     created_at: datetime = Field(default_factory=datetime.utcnow)
     attempts: int = 0
+    
+    model_config = {
+        "json_encoders": {
+            datetime: lambda dt: dt.isoformat()
+        }
+    }

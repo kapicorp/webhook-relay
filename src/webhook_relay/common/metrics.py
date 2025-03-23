@@ -73,9 +73,9 @@ class MetricsRegistry:
 metrics = MetricsRegistry()
 
 
-def start_metrics_server(port: int = 9090, addr: str = ""):
+def start_metrics_server(port: int = 9090, host: str = "127.0.0.1"):
     """Start the Prometheus metrics server."""
-    start_http_server(port, addr)
+    start_http_server(port, host)
 
 
 def measure_time(
