@@ -38,12 +38,12 @@ flowchart LR
     end
     
     %% Connect the components with numbered steps
-    GitHub -->|"1. Send webhook"| Collector
-    Collector -->|"2. Validate & queue"| Queue
-    Queue -->|"3a. Consume message"| Forwarder1
-    Queue -->|"3b. Consume message"| Forwarder2
-    Forwarder1 -->|"4a. Forward payload"| ArgoCD
-    Forwarder2 -->|"4b. Forward payload"| Atlantis
+    GitHub -->|"[1] Send webhook"| Collector
+    Collector -->|"[2] Validate & queue"| Queue
+    Queue -->|"[3a] Consume message"| Forwarder1
+    Queue -->|"[3b] Consume message"| Forwarder2
+    Forwarder1 -->|"[4a] Forward payload"| ArgoCD
+    Forwarder2 -->|"[4b] Forward payload"| Atlantis
     
     %% Style the components
     classDef github fill:#24292e,color:#fff,stroke:#000,stroke-width:2
