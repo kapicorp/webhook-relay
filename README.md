@@ -9,7 +9,60 @@ The system consists of two main components:
 1. **Collector**: A publicly exposed service that receives webhooks from external sources and puts them on a message queue.
 2. **Forwarder**: A service that runs alongside internal applications, reads messages from the queue, and forwards them to the internal service.
 
-![Webhook Relay Architecture](https://via.placeholder.com/800x400?text=Webhook+Relay+Architecture)
+```mermaid
+flowchart LR
+    %% Define the nodes with clear, descriptive labels
+    GitHub["GitHub\n(Webhook Source)"]
+    Collector["Collector\n(Publicly Exposed)"]
+    Queue["Message Queue\n(GCP/AWS)"]
+    Forwarder1["Forwarder Sidecar\n(ArgoCD)"]
+    Forwarder2["Forwarder Sidecar\n(Atlantis)"]
+    ArgoCD["ArgoCD\n(GitOps Service)"]
+    Atlantis["Atlantis\n(Terraform Service)"]
+    
+    %% Define the zones
+    subgraph Public["Public Internet"]
+        GitHub
+    end
+    
+    subgraph DMZ["DMZ (Limited Exposure)"]
+        Collector
+        Queue
+    end
+    
+    subgraph Private["Private Network"]
+        Forwarder1
+        Forwarder2
+        ArgoCD
+        Atlantis
+    end
+    
+    %% Connect the components with numbered steps
+    GitHub -->|"1. Send webhook"| Collector
+    Collector -->|"2. Validate & queue"| Queue
+    Queue -->|"3a. Consume message"| Forwarder1
+    Queue -->|"3b. Consume message"| Forwarder2
+    Forwarder1 -->|"4a. Forward payload"| ArgoCD
+    Forwarder2 -->|"4b. Forward payload"| Atlantis
+    
+    %% Style the components
+    classDef github fill:#24292e,color:#fff,stroke:#000,stroke-width:2
+    classDef collector fill:#4285f4,color:#fff,stroke:#2a67c5,stroke-width:2
+    classDef queue fill:#0f9d58,color:#fff,stroke:#0b7b45,stroke-width:2
+    classDef forwarder fill:#db4437,color:#fff,stroke:#a53125,stroke-width:2
+    classDef argocd fill:#f5ba21,color:#333,stroke:#c68f00,stroke-width:2
+    classDef atlantis fill:#ab47bc,color:#fff,stroke:#7c3992,stroke-width:2
+    classDef zone fill:#f8f9fa,stroke:#666,stroke-dasharray:5 5,stroke-width:2
+    
+    %% Apply styles
+    class GitHub github
+    class Collector collector
+    class Queue queue
+    class Forwarder1,Forwarder2 forwarder
+    class ArgoCD argocd
+    class Atlantis atlantis
+    class Public,DMZ,Private zone
+```
 
 ### Features
 
